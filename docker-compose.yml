@@ -1,0 +1,16 @@
+services:
+  samples:
+    image: samples:latest
+    container_name: samples
+    restart: unless-stopped
+    ports:
+      - "9554:8554"     # RTSP
+      - "9322:8322"     # RTSP over HTTP
+      - "9000:8000/udp" # RTP
+      - "9001:8001/udp" # RTCP
+    networks:
+      - octo-cx-network
+
+networks:
+  octo-cx-network:
+    external: true
