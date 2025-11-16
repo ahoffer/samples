@@ -1,16 +1,16 @@
 services:
   samples:
-    image: samples:latest
+    image: samples:${VERSION}
     volumes:
       - ./mediamtx.yml:/mediamtx.yml:ro
-    container_name: samples
-    hostname: samples
+    container_name: ${CONTAINER_NAME}
+    hostname: ${CONTAINER_NAME}
     restart: unless-stopped
     ports:
-      - "9554:8554"     # RTSP
-      - "9322:8322"     # RTSP over HTTP
-      - "9000:8000/udp" # RTP
-      - "9001:8001/udp" # RTCP
+      - "${RTSP_PORT}:8554"          # RTSP
+      - "${RTSP_HTTP_PORT}:8888"     # RTSP over HTTP
+      - "${RTP_PORT}:8000/udp"       # RTP
+      - "${RTCP_PORT}:8001/udp"      # RTCP
     networks:
       - octo-cx-network
 

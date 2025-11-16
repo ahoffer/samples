@@ -1,3 +1,18 @@
+# Protocol listeners
+rtspAddress: :8554
+rtpAddress: :8000
+rtcpAddress: :8001
+hlsAddress: :8888
+
+# Paths configuration
 paths:
   village1:
-    source: file:///app/videos/village-2boys.mp4
+    runOnInit: ffmpeg -re -stream_loop -1 -i /app/videos/village-2boys.mp4 -c copy -f rtsp rtsp://localhost:8554/$MTX_PATH
+    runOnInitRestart: yes
+  village2:
+    runOnInit: ffmpeg -re -stream_loop -1 -i /app/videos/village-disappearing-people.mp4 -c copy -f rtsp rtsp://localhost:8554/$MTX_PATH
+    runOnInitRestart: yes
+  village3:
+    runOnInit: ffmpeg -re -stream_loop -1 -i /app/videos/village-3people.mp4 -c copy -f rtsp rtsp://localhost:8554/$MTX_PATH
+    runOnInitRestart: yes
+
