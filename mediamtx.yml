@@ -8,14 +8,15 @@ hls: yes
 hlsAddress: :8888
 
 # Paths configuration
+# Using stream-video.sh wrapper script: stream-video.sh <video-file> <stream-path>
 paths:
   village1:
-    runOnInit: ffmpeg -re -stream_loop -1 -i /app/videos/village-2boys.mp4 -c:v libx264 -profile:v baseline -preset ultrafast -c:a aac -f rtsp rtsp://localhost:8554/$MTX_PATH
+    runOnInit: stream-video.sh /app/videos/village-2boys.mp4 $MTX_PATH
     runOnInitRestart: yes
   village2:
-    runOnInit: ffmpeg -re -stream_loop -1 -i /app/videos/village-disappearing-people.mp4 -c:v libx264 -profile:v baseline -preset ultrafast -c:a aac -f rtsp rtsp://localhost:8554/$MTX_PATH
+    runOnInit: stream-video.sh /app/videos/village-disappearing-people.mp4 $MTX_PATH
     runOnInitRestart: yes
   village3:
-    runOnInit: ffmpeg -re -stream_loop -1 -i /app/videos/village-3people.mp4 -c:v libx264 -profile:v baseline -preset ultrafast -c:a aac -f rtsp rtsp://localhost:8554/$MTX_PATH
+    runOnInit: stream-video.sh /app/videos/village-3people.mp4 $MTX_PATH
     runOnInitRestart: yes
 
