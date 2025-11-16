@@ -2,17 +2,20 @@
 rtspAddress: :8554
 rtpAddress: :8000
 rtcpAddress: :8001
+
+# Enable HLS
+hls: yes
 hlsAddress: :8888
 
 # Paths configuration
 paths:
   village1:
-    runOnInit: ffmpeg -re -stream_loop -1 -i /app/videos/village-2boys.mp4 -c copy -f rtsp rtsp://localhost:8554/$MTX_PATH
+    runOnInit: ffmpeg -re -stream_loop -1 -i /app/videos/village-2boys.mp4 -c:v libx264 -profile:v baseline -preset ultrafast -c:a aac -f rtsp rtsp://localhost:8554/$MTX_PATH
     runOnInitRestart: yes
   village2:
-    runOnInit: ffmpeg -re -stream_loop -1 -i /app/videos/village-disappearing-people.mp4 -c copy -f rtsp rtsp://localhost:8554/$MTX_PATH
+    runOnInit: ffmpeg -re -stream_loop -1 -i /app/videos/village-disappearing-people.mp4 -c:v libx264 -profile:v baseline -preset ultrafast -c:a aac -f rtsp rtsp://localhost:8554/$MTX_PATH
     runOnInitRestart: yes
   village3:
-    runOnInit: ffmpeg -re -stream_loop -1 -i /app/videos/village-3people.mp4 -c copy -f rtsp rtsp://localhost:8554/$MTX_PATH
+    runOnInit: ffmpeg -re -stream_loop -1 -i /app/videos/village-3people.mp4 -c:v libx264 -profile:v baseline -preset ultrafast -c:a aac -f rtsp rtsp://localhost:8554/$MTX_PATH
     runOnInitRestart: yes
 
