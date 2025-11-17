@@ -5,12 +5,4 @@
 VIDEO_FILE="$1"
 STREAM_PATH="$2"
 
-# Default bitrate if not set (controls network bandwidth usage)
-BITRATE="${STREAM_BITRATE:-3M}"
-
-exec ffmpeg -re -stream_loop -1 \
-  -i "$VIDEO_FILE" \
-  -c:v libx264 -profile:v baseline -preset ultrafast \
-  -b:v "$BITRATE" -maxrate "$BITRATE" -bufsize "6M" \
-  -map 0 \
-  -f rtsp "rtsp://localhost:8554/$STREAM_PATH"
+exec ffmpeg -re -stream_loop -1 -i "$VIDEO_FILE" -c copy -map 0 -f rtsp "rtsp://localhost:8554/$STREAM_PATH"

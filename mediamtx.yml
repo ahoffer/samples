@@ -19,4 +19,6 @@ paths:
   village3:
     runOnInit: stream-video.sh /app/videos/village-3people.mp4 $MTX_PATH
     runOnInitRestart: yes
-
+  martac:
+    runOnInit: stream-video.sh /app/videos/usv_vid.mp4 $MTX_PATH
+    runOnInitRestart: yes

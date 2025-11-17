@@ -1,5 +1,3 @@
-SHELL := /bin/bash
-
 .PHONY: build up down
 
 build:
