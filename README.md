@@ -21,6 +21,10 @@ make down  - Stop the service.
 1. Update the `mediamtx.yml` file.
 1. Restart with `make up`
 
+### Update Version or Container Name
+
+Edit the `.env` file.
+
 ### URLs
 Video streams are published in several ways.
 The most useful are RTSP and HLS.
