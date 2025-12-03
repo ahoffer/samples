@@ -1,6 +1,12 @@
 ## Video Streams
 Run this container when other video streams are not available
 
+### Quickstart
+
+1. Start the application
+2. Run `make build up`
+3. Use `rtsp://samples:8554/martac` as a URL
+
 ### Developers
 This project uses a Makefile.
 
