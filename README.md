@@ -1,11 +1,13 @@
 ## Video Streams
-Run this container when other video streams are not available
+Run this container when other video streams are not available. 
+The idea is that app has no external dependencies on an RTSP server, or any kind of mounts.
+
 
 ### Quickstart
 
 1. Start the application
 2. Run `make build up`
-3. Use `rtsp://samples:8554/martac` as a URL
+3. Use `rtsp://samples:8554/village-2boys` as a URL
 
 ### Developers
 This project uses a Makefile.
@@ -24,9 +26,9 @@ Video streams are published in several ways.
 The most useful are RTSP and HLS.
 
 ```
-rtsp://samples:8554/martac
+rtsp://samples:8554/village-2boys
 ```
 
 ```
-http://samples:8888/martac/index.m3u8
+http://samples:8888/village-2boys/index.m3u8
 ```
