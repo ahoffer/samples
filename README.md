@@ -30,9 +30,16 @@ Video streams are published in several ways.
 The most useful are RTSP and HLS.
 
 ```
-rtsp://samples:8554/village-2boys
-```
+rtsp://samples:8554/village1
+rtsp://samples:8554/village2
+rtsp://samples:8554/village3
 
 ```
-http://samples:8888/village-2boys/index.m3u8
+
+
+It can take a minute or two before these HLS stream start after configuring one. 
+```
+http://samples:8888/village1/index.m3u8
+http://samples:8888/village2/index.m3u8
+http://samples:8888/village3/index.m3u8
 ```
