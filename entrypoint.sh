@@ -1,12 +1,6 @@
 #!/bin/sh
 
-# Set MediaMTX log level based on LOG_LEVEL environment variable
-# Default: error (quiet), Debug: info (verbose)
-if [ "$LOG_LEVEL" = "debug" ]; then
-    sed -i 's/^logLevel:.*/logLevel: info/' /app/mediamtx.yml
-else
-    sed -i 's/^logLevel:.*/logLevel: error/' /app/mediamtx.yml
-fi
+# Note: Log level is set directly in mediamtx.yml
 
 # Trap SIGTERM and SIGINT to kill all child processes immediately
 trap 'kill -TERM 0' TERM INT

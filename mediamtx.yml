@@ -1,6 +1,20 @@
 # Log level: debug, info, warn, error
-# This will be overridden by entrypoint.sh based on LOG_LEVEL env var
-logLevel: error
+# Change this value and restart to adjust logging verbosity
+logLevel: info
+
+# API configuration (for mediamtx-connect)
+api: yes
+apiAddress: :9997
+
+# Allow API access from any IP (needed for Docker networking)
+authInternalUsers:
+  - user: any
+    pass:
+    ips: []
+    permissions:
+      - action: api
+      - action: read
+      - action: publish
 
 # Protocol listeners
 rtspAddress: :8554
