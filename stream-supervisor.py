@@ -3,17 +3,18 @@
 Stream supervisor: watches /app/videos and manages FFmpeg streaming processes
 Includes HTTP API for stream control
 """
+import json
 import os
 import re
-import subprocess
-import time
 import socket
-import json
+import subprocess
 import threading
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
-from pathlib import Path
+import time
 from datetime import datetime
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from pathlib import Path
+from urllib.parse import urlparse, parse_qs
+
 from inotify_simple import INotify, flags
 
 VIDEOS_DIR = Path("/app/videos")
@@ -87,11 +88,7 @@ def start_stream(video_path, stream_name, loop_count=-1):
         else:
             process = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        streams[stream_name] = {
-            "process": process,
-            "video_path": str(video_path),
-            "loop_count": loop_count
-        }
+        streams[stream_name] = {"process": process, "video_path": str(video_path), "loop_count": loop_count}
         available_videos[stream_name] = str(video_path)
         stream_loop_counts[stream_name] = loop_count
 
@@ -132,13 +129,8 @@ def get_stream_status():
     for name, video_path in available_videos.items():
         is_running = name in streams
         loop_count = stream_loop_counts.get(name, -1)
-        result.append({
-            "name": name,
-            "video_path": video_path,
-            "running": is_running,
-            "loop_count": loop_count,
-            "rtsp_url": f"rtsp://{HOSTNAME}:{RTSP_PORT}/{name}"
-        })
+        result.append({"name": name, "video_path": video_path, "running": is_running, "loop_count": loop_count,
+            "rtsp_url": f"rtsp://{HOSTNAME}:{RTSP_PORT}/{name}"})
     return result
 
 
@@ -380,7 +372,7 @@ class StreamHandler(BaseHTTPRequestHandler):
 
 
 def start_api_server():
-    server = HTTPServer(('0.0.0.0', API_PORT), StreamHandler)
+    server = HTTPServer(('0.0.0.0', API_PORT), StreamHandler)  # type: ignore[arg-type]
     log(f"Stream Control UI: http://localhost:9080")
     server.serve_forever()
 
