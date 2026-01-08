@@ -15,7 +15,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
-from inotify_simple import INotify, flags
+# Note: inotify doesn't work on network filesystems (CIFS/NFS), so we use polling
 
 VIDEOS_DIR = Path("/app/videos")
 STREAM_VIDEO_SCRIPT = "stream-video.sh"
@@ -93,8 +93,7 @@ def start_stream(video_path, stream_name, loop_count=-1):
         stream_loop_counts[stream_name] = loop_count
 
         rtsp_url = f"rtsp://{HOSTNAME}:{RTSP_PORT}/{stream_name}"
-        loop_str = "infinite" if loop_count == -1 else f"{loop_count + 1}x"
-        log(f"Now playing {rtsp_url} ({loop_str})")
+        log(f"Now playing {rtsp_url}")
         return True
     except Exception as e:
         log(f"Failed to start stream {stream_name}: {e}")
@@ -160,7 +159,7 @@ def sync_videos():
     log(f"Initial sync complete: {count} streams started")
 
 
-def handle_create(filepath):
+def handle_create(filepath, event_type="added"):
     path = Path(filepath)
 
     # Skip hidden files
@@ -169,14 +168,14 @@ def handle_create(filepath):
 
     stream_name = sanitize_name(path)
     available_videos[stream_name] = str(path)
-    log(f"New video detected: {path.name}")
+    log(f"Video {event_type}: {path.name}")
     start_stream(path, stream_name)
 
 
-def handle_delete(filepath):
+def handle_delete(filepath, event_type="deleted"):
     path = Path(filepath)
     stream_name = sanitize_name(path)
-    log(f"Video deleted: {path.name}")
+    log(f"Video {event_type}: {path.name}")
     stop_stream(stream_name)
     if stream_name in available_videos:
         del available_videos[stream_name]
@@ -377,28 +376,44 @@ def start_api_server():
     server.serve_forever()
 
 
-def watch_directory():
-    inotify = INotify()
-    watch_flags = flags.CREATE | flags.DELETE | flags.MOVED_TO | flags.MOVED_FROM
-    inotify.add_watch(str(VIDEOS_DIR), watch_flags)
+def get_video_files():
+    """Scan directory and return dict of {filename: mtime}"""
+    files = {}
+    for video_path in VIDEOS_DIR.iterdir():
+        if video_path.is_file() and not video_path.name.startswith('.'):
+            files[video_path.name] = video_path.stat().st_mtime
+    return files
 
-    log(f"Watching {VIDEOS_DIR} for changes...")
+
+def watch_directory():
+    """Watch directory for changes using polling (works on network filesystems)"""
+    log(f"Watching {VIDEOS_DIR} for changes (polling mode)...")
 
     last_cleanup = time.time()
+    known_files = get_video_files()
 
     while True:
-        # Non-blocking read with timeout
-        events = inotify.read(timeout=1000)  # 1 second timeout
+        time.sleep(2)  # Poll every 2 seconds
 
-        for event in events:
-            filepath = VIDEOS_DIR / event.name
+        try:
+            current_files = get_video_files()
 
-            if event.mask & (flags.CREATE | flags.MOVED_TO):
-                # Brief delay to ensure file is fully written
-                time.sleep(0.5)
-                handle_create(filepath)
-            elif event.mask & (flags.DELETE | flags.MOVED_FROM):
-                handle_delete(filepath)
+            # Check for new files
+            for filename in current_files:
+                if filename not in known_files:
+                    filepath = VIDEOS_DIR / filename
+                    handle_create(filepath, "added")
+
+            # Check for deleted files
+            for filename in list(known_files.keys()):
+                if filename not in current_files:
+                    filepath = VIDEOS_DIR / filename
+                    handle_delete(filepath, "removed")
+
+            known_files = current_files
+
+        except Exception as e:
+            log(f"Error scanning directory: {e}")
 
         # Periodic cleanup every 30 seconds
         if time.time() - last_cleanup > 30:

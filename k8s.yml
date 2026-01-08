@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autostream
+  namespace: octocx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: autostream
+  template:
+    metadata:
+      labels:
+        app: autostream
+    spec:
+      containers:
+        - name: autostream
+          image: autostream:0.7
+          imagePullPolicy: Never
+          env:
+            - name: MEDIAMTX_RTSP_PORT
+              value: "8554"
+            - name: CONTAINER_NAME
+              value: autostream
+          ports:
+            - containerPort: 8554
+              protocol: TCP
+            - containerPort: 8888
+              protocol: TCP
+            - containerPort: 8000
+              protocol: UDP
+            - containerPort: 8001
+              protocol: UDP
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /app/mediamtx.yml
+              subPath: mediamtx.yml
+            - name: videos
+              mountPath: /app/videos
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: autostream-config
+        - name: videos
+          hostPath:
+            path: /mnt/projects/autostream/videos
+            type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: autostream
+  namespace: octocx
+spec:
+  selector:
+    app: autostream
+  ports:
+    - name: rtsp
+      port: 8554
+      targetPort: 8554
+      protocol: TCP
+    - name: hls
+      port: 8888
+      targetPort: 8888
+      protocol: TCP
+    - name: rtp
+      port: 8000
+      targetPort: 8000
+      protocol: UDP
+    - name: rtcp
+      port: 8001
+      targetPort: 8001
+      protocol: UDP
+    - name: ui
+      port: 8080
+      targetPort: 8080
+      protocol: TCP

@@ -1,6 +1,6 @@
 # Log level: debug, info, warn, error
 # Change this value and restart to adjust logging verbosity
-logLevel: info
+logLevel: error
 
 # API configuration (for mediamtx-connect)
 api: yes

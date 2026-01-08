@@ -9,32 +9,11 @@ Automatic RTSP video streaming server with web-based stream control and hot-relo
    cp your-video.mp4 videos/
    ```
 
-2. **Build and start**:
+2. **Build and deploy**:
    ```bash
    make build    # Only needed once, or after code changes
    make up
    ```
-
-3. **Control your streams** via the web UI:
-   ```
-   http://localhost:9080
-   ```
-
-4. **Access streams** via RTSP:
-   ```
-   rtsp://localhost:9554/<video-name>
-   ```
-
-## Web Control UI
-
-A built-in web interface at **http://localhost:9080** lets you:
-
-- **Start/Stop** individual streams
-- **Stop All / Start All** streams at once
-- **Set playback count**: Infinite loop, or play 1x, 2x, 3x, 5x, 10x times
-- **View status** of all streams (auto-refreshes every 5 seconds)
-
-The playback count setting persists when you stop a stream.
 
 ## How It Works
 
@@ -46,10 +25,14 @@ Autostream automatically:
 
 ## Stream URLs
 
-Videos are accessible at:
-- **RTSP (from host)**: `rtsp://localhost:9554/<stream-name>`
-- **RTSP (Docker network)**: `rtsp://autostream:8554/<stream-name>`
-- **HLS**: `http://localhost:9322/<stream-name>/index.m3u8`
+Videos are accessible via the `autostream` service:
+- **RTSP**: `rtsp://autostream:8554/<stream-name>`
+- **HLS**: `http://autostream:8888/<stream-name>/index.m3u8`
+
+**Example:** If you add `sailboat.mp4` to the `videos/` directory:
+```
+rtsp://autostream:8554/sailboat
+```
 
 Stream names are sanitized from filenames:
 - `My Video (1080p).mp4` → `my_video_1080p`
@@ -65,14 +48,6 @@ CONTAINER_NAME=autostream      # Container name
 MEDIAMTX_RTSP_PORT=8554       # Internal RTSP port
 ```
 
-## Port Mapping
-
-| Service | Host Port | Description |
-|---------|-----------|-------------|
-| RTSP | 9554 | Main streaming protocol |
-| HLS | 9322 | HTTP Live Streaming |
-| Web UI | 9080 | Stream Control Interface |
-
 ## REST API
 
 | Endpoint | Method | Description |
@@ -87,9 +62,28 @@ MEDIAMTX_RTSP_PORT=8554       # Internal RTSP port
 ## Commands
 
 ```bash
-make build      # Build container image
-make up         # Start container
-make down       # Stop container
+make build      # Build container image with nerdctl
+make export     # Save image to autostream.tar
+make import     # Import tar into k3s (requires sudo)
+make up         # Deploy to Kubernetes (namespace: octocx)
+make down       # Remove from Kubernetes
+```
+
+## Kubernetes (k3s) Setup
+
+nerdctl and k3s use separate containerd namespaces. Images built with nerdctl are not visible to k3s until exported and imported.
+
+**Code changes** (stream-supervisor.py, Dockerfile, etc.):
+```bash
+make build          # Build the image
+make export         # Save to autostream.tar
+make import         # Import into k3s (prompts for sudo)
+make down && make up  # Redeploy
+```
+
+**Config changes** (mediamtx.yml only):
+```bash
+make down && make up  # ConfigMap is recreated from local file
 ```
 
 ## Supported Formats
